@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Demo App</string>
+
+    <string name="error_page_message">Oops! Unexpected error occurred</string>
+    <string name="error_page_close_button">Close App</string>
+
+    <string name="demo_page_load_currency_list">Load Data</string>
+    <string name="demo_page_sort_currency_list">Sort</string>
+</resources>
