@@ -9,11 +9,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.lettucech.currencylist.databinding.FragmentCurrencyListBinding
 
-class CurrencyListFragment : Fragment() {
+class CurrencyListFragment(private val currencyRepository: CurrencyRepository) : Fragment() {
     private lateinit var viewBinding: FragmentCurrencyListBinding
     private lateinit var currencyListAdapter: CurrencyListRecyclerViewAdapter
     private var currencyViewModel: CurrencyListViewModel? = null
-    var currencyRepository: CurrencyRepository? = null
     var onCurrencyInfoItemClickListener: OnCurrencyInfoItemClickListener? = null
     var onListUpdatedListener: OnListUpdatedListener? = null
 
@@ -40,7 +39,7 @@ class CurrencyListFragment : Fragment() {
             }
         })
 
-        currencyRepository?.let {
+        currencyRepository.let {
             currencyViewModel =
                 ViewModelProvider(this, CurrencyListViewModelFactory(it)).get(
                     CurrencyListViewModel::class.java

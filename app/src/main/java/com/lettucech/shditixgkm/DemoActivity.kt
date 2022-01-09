@@ -3,6 +3,7 @@ package com.lettucech.shditixgkm
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -39,11 +40,13 @@ class DemoActivity : AppCompatActivity() {
             .throttleFirst(200, TimeUnit.MILLISECONDS)
             .subscribe {
                 viewBinding.btnLoadCurrencyList.isEnabled = false
+                viewBinding.pbLoading.visibility = View.VISIBLE
                 connectDatabase()
             }
 
         appViewModel = ViewModelProvider(this).get(AppViewModel::class.java)
         appViewModel.getAppDatabase().observe(this, { db ->
+            viewBinding.pbLoading.visibility = View.GONE
             if (db == null) {
                 onAppError()
             } else {
@@ -72,7 +75,10 @@ class DemoActivity : AppCompatActivity() {
     private fun loadSampleCurrencyList(repository: CurrencyRepository, onReadyToShow: () -> Unit) {
         lifecycleScope.launch(Dispatchers.IO) {
             if (repository.getAllCurrencyInfo().isEmpty()) {
-                Log.d(TAG, "loading sample currency list into database in thread ${Thread.currentThread()}")
+                Log.d(
+                    TAG,
+                    "loading sample currency list into database in thread ${Thread.currentThread()}"
+                )
                 val currencyInfoList = Gson().fromJson<List<CurrencyInfo>>(
                     resources.openRawResource(R.raw.sample_data_currency_list).bufferedReader(),
                     object : TypeToken<List<CurrencyInfo>>() {}.type
@@ -86,9 +92,7 @@ class DemoActivity : AppCompatActivity() {
     }
 
     private fun showCurrencyList(repository: CurrencyRepository) {
-        val currencyListFragment = CurrencyListFragment()
-
-        currencyListFragment.currencyRepository = repository
+        val currencyListFragment = CurrencyListFragment(repository)
 
         var clickEmitter: ObservableEmitter<CurrencyInfo>? = null
         Observable.create<CurrencyInfo> { emitter -> clickEmitter = emitter }
