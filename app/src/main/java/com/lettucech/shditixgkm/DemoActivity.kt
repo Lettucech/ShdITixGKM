@@ -1,6 +1,7 @@
 package com.lettucech.shditixgkm
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -19,6 +20,8 @@ import io.reactivex.rxjava3.core.ObservableEmitter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
+
+private val TAG = DemoActivity::class.java.simpleName
 
 class DemoActivity : AppCompatActivity() {
     private lateinit var viewBinding: ActivityDemoBinding
@@ -67,17 +70,18 @@ class DemoActivity : AppCompatActivity() {
     }
 
     private fun loadSampleCurrencyList(repository: CurrencyRepository, onReadyToShow: () -> Unit) {
-        lifecycleScope.launch {
-            launch(Dispatchers.IO) {
-                if (repository.getAllCurrencyInfo().isEmpty()) {
-                    val currencyInfoList = Gson().fromJson<List<CurrencyInfo>>(
-                        resources.openRawResource(R.raw.sample_data_currency_list).bufferedReader(),
-                        object : TypeToken<List<CurrencyInfo>>() {}.type
-                    )
-                    repository.addCurrencyInfo(*currencyInfoList.toTypedArray())
-                }
+        lifecycleScope.launch(Dispatchers.IO) {
+            if (repository.getAllCurrencyInfo().isEmpty()) {
+                Log.d(TAG, "loading sample currency list into database in thread ${Thread.currentThread()}")
+                val currencyInfoList = Gson().fromJson<List<CurrencyInfo>>(
+                    resources.openRawResource(R.raw.sample_data_currency_list).bufferedReader(),
+                    object : TypeToken<List<CurrencyInfo>>() {}.type
+                )
+                repository.addCurrencyInfo(*currencyInfoList.toTypedArray())
             }
-            onReadyToShow()
+            launch(Dispatchers.Main) {
+                onReadyToShow()
+            }
         }
     }
 

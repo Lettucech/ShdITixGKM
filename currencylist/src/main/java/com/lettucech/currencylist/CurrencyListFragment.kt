@@ -6,11 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.lettucech.currencylist.databinding.FragmentCurrencyListBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class CurrencyListFragment : Fragment() {
     private lateinit var viewBinding: FragmentCurrencyListBinding
@@ -36,7 +33,8 @@ class CurrencyListFragment : Fragment() {
             viewBinding.rv.adapter = it
         }
 
-        currencyListAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+        currencyListAdapter.registerAdapterDataObserver(object :
+            RecyclerView.AdapterDataObserver() {
             override fun onChanged() {
                 onListUpdatedListener?.onListUpdated()
             }
@@ -52,10 +50,7 @@ class CurrencyListFragment : Fragment() {
                 { currencyList ->
                     currencyListAdapter.setCurrencyInfo(*currencyList.toTypedArray())
                 })
-
-            lifecycleScope.launch(Dispatchers.IO) {
-                currencyViewModel?.loadCurrencyList()
-            }
+            currencyViewModel?.loadCurrencyList()
         }
 
         return viewBinding.root

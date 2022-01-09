@@ -10,6 +10,8 @@ import androidx.room.Room
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+private val TAG = AppViewModel::class.java.simpleName
+
 class AppViewModel : ViewModel() {
     private val appDatabase: MutableLiveData<AppDatabase> by lazy {
         MutableLiveData()
@@ -21,12 +23,14 @@ class AppViewModel : ViewModel() {
 
     fun connectDatabase(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
+            Log.d(TAG, "start connecting database in thread ${Thread.currentThread()}")
             var database: AppDatabase? = null
             try {
                 database =
                     Room.databaseBuilder(context, AppDatabase::class.java, "database").build()
+                Log.d(TAG, "database connected")
             } catch (e: Exception) {
-                Log.d(this@AppViewModel.TAG, e.toString())
+                Log.d(TAG, e.toString())
             }
             appDatabase.postValue(database)
         }
